@@ -6,21 +6,21 @@
     <title>SCMS Premium Receipt</title>
     <style>
         :root { --primary: #e67e22; --dark: #2c3e50; --light: #f8f9fa; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #dfe6e9; padding: 30px; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #dfe6e9; padding: 30px; margin: 0; }
         
         /* Control Panel */
         .control-panel { max-width: 850px; margin: 0 auto 20px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
         .grid-input { display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; align-items: end; }
         label { font-size: 12px; font-weight: bold; color: var(--dark); text-transform: uppercase; margin-bottom: 5px; display: block; }
-        select, input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; outline: none; transition: 0.3s; }
-        .btn-generate { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; outline: none; }
+        .btn-generate { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         /* Receipt Design */
         #receipt-wrap { display: none; max-width: 850px; margin: 0 auto; background: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .receipt-body { padding: 50px; border: 15px solid var(--light); position: relative; background: #fff; }
+        .receipt-body { padding: 50px; border: 15px solid var(--light); position: relative; background: #fff; min-height: 500px; }
         
         /* Watermark */
-        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); opacity: 0.05; width: 400px; pointer-events: none; z-index: 0; }
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); opacity: 0.06; width: 400px; pointer-events: none; z-index: 0; }
 
         /* Header */
         .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; position: relative; z-index: 1; }
@@ -31,32 +31,27 @@
         .receipt-banner { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
         .receipt-banner h2 { display: inline-block; background: var(--dark); color: white; padding: 8px 40px; border-radius: 5px; font-size: 20px; letter-spacing: 3px; }
 
-        /* Info Rows */
         .info-row { display: flex; margin-bottom: 25px; align-items: baseline; gap: 10px; position: relative; z-index: 1; }
         .info-label { font-weight: bold; color: var(--dark); white-space: nowrap; font-size: 15px; }
-        .info-value { border-bottom: 1px dashed #ccc; flex-grow: 1; padding: 0 10px; color: #333; font-size: 16px; }
+        .info-value { border-bottom: 1px dashed #ccc; flex-grow: 1; padding: 0 10px; color: #333; font-size: 16px; min-height: 20px; }
 
-        /* Amount Section */
         .amount-row { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; background: var(--light); padding: 20px; border-radius: 10px; position: relative; z-index: 1; }
         .amt-box { font-size: 28px; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
 
-        /* Signature & QR Area */
         .signature-area { margin-top: 80px; display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 1; }
         .sig-box { width: 200px; text-align: center; border-top: 2px solid var(--dark); padding-top: 10px; font-weight: bold; color: var(--dark); font-size: 14px; }
         
-        /* QR Code Style */
         .qr-box { text-align: center; background: white; padding: 5px; border: 1px solid #ddd; border-radius: 5px; }
-        .qr-box img { width: 80px; height: 80px; }
+        .qr-box img { width: 85px; height: 85px; display: block; }
         .qr-box p { font-size: 9px; margin: 3px 0 0; color: #666; font-weight: bold; }
 
-        .print-fab { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 0 0 15px 15px; }
+        .print-fab { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-weight: bold; cursor: pointer; }
 
         @media print {
             body { background: white; padding: 0; }
             .control-panel, .print-fab { display: none !important; }
-            #receipt-wrap { display: block !important; box-shadow: none; border: none; margin: 0; width: 100%; }
+            #receipt-wrap { display: block !important; box-shadow: none; border: none; width: 100%; }
             .receipt-body { border: none; padding: 30px; }
-            .watermark { opacity: 0.08; } /* প্রিন্টে ওয়াটারমার্ক একটু স্পষ্ট করার জন্য */
         }
     </style>
 </head>
@@ -66,7 +61,7 @@
     <div class="grid-input">
         <div>
             <label>Select Client / Payer</label>
-            <select id="payerSelect"><option>Loading Data...</option></select>
+            <select id="payerSelect"><option value="">Loading Data...</option></select>
         </div>
         <div>
             <label>Search by Date</label>
@@ -78,7 +73,7 @@
 
 <div id="receipt-wrap">
     <div class="receipt-body">
-        <img class="watermark" src="https://scontent.fjsr18-2.fna.fbcdn.net/v/t39.30808-6/608517230_908069688449770_4195374660845873501_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeGfSPRJnYPx0OPgbaOP2xi5F73hkL7gPWkXveGQvuA9aQ-hCn2WzwodMKtN3KbCt2JIyYH3DXzx5DOF7O9ZJk4h&_nc_ohc=iHP85gaCQ1oQ7kNvwHE87kh&_nc_oc=Adki_psg5DaacBFIx7QNXIcwFn8hX1tk_ElonRNnTdH5QVaZVpz1LTiJJC-B_m-wvzA&_nc_zt=23&_nc_ht=scontent.fjsr18-2.fna&_nc_gid=NxkukvWRQ42CSDU8s0mPTQ&oh=00_Afoukg-uwaPjCoUIHKbq2b4x6KqfWSrne5DrN2QiPxK-gA&oe=695C9EC6" alt="">
+        <img class="watermark" src="https://scontent.fjsr18-2.fna.fbcdn.net/v/t39.30808-6/608517230_908069688449770_4195374660845873501_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&oh=00_Afoukg-uwaPjCoUIHKbq2b4x6KqfWSrne5DrN2QiPxK-gA&oe=695C9EC6" alt="Logo">
         
         <div class="header">
             <div class="brand">
@@ -92,9 +87,7 @@
             </div>
         </div>
 
-        <div class="receipt-banner">
-            <h2>MONEY RECEIPT</h2>
-        </div>
+        <div class="receipt-banner"><h2>MONEY RECEIPT</h2></div>
 
         <div style="display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; z-index: 1;">
             <div style="font-weight: bold;">No: <span id="r-no" style="color: var(--primary);"></span></div>
@@ -145,45 +138,43 @@
             const res = await fetch(CSV_URL);
             const csv = await res.text();
             dataStore = csv.split('\n').map(r => r.split(','));
-            
             const select = document.getElementById('payerSelect');
             select.innerHTML = '<option value="">Select Client Name</option>';
-            
             let names = [...new Set(dataStore.slice(1).map(r => r[3]?.trim()).filter(n => n))];
             names.forEach(n => select.add(new Option(n, n)));
-        } catch (e) { alert("Failed to load data!"); }
+        } catch (e) { console.log("Data Load Error"); }
     }
 
     function drawReceipt() {
         const name = document.getElementById('payerSelect').value;
         const dateInput = document.getElementById('dateSearch').value;
-        const row = dataStore.find((r, i) => i > 0 && (r[3]?.trim() === name || r[2]?.trim() === dateInput));
+        
+        // Find row by Name or Date
+        const row = dataStore.find((r, i) => i > 0 && (r[3]?.trim() === name || (dateInput && r[2]?.trim().includes(dateInput))));
 
         if(row) {
             document.getElementById('receipt-wrap').style.display = 'block';
             document.getElementById('r-no').innerText = row[1] || "N/A";
-            document.getElementById('r-date').innerText = row[2];
-            document.getElementById('r-name').innerText = row[3];
-            document.getElementById('r-mode').innerText = "Transaction ID: " + row[1];
-            document.getElementById('r-amt').innerText = parseFloat(row[4]).toLocaleString();
-            document.getElementById('r-words').innerText = toWords(row[4]) + " Taka Only";
+            document.getElementById('r-date').innerText = row[2] || "";
+            document.getElementById('r-name').innerText = row[3] || "";
+            document.getElementById('r-mode').innerText = "Transaction ID: " + (row[1] || "N/A");
             
-            // কিউআর কোড এপিআই আপডেট করা হয়েছে (এটি সব প্ল্যাটফর্মে কাজ করবে)
+            let amount = row[4] ? row[4].replace(/[^0-9.]/g, '') : "0";
+            document.getElementById('r-amt').innerText = parseFloat(amount).toLocaleString();
+            document.getElementById('r-words').innerText = toWords(amount) + " Taka Only";
+            
+            // Google QR API - সব ডিভাইসে কাজ করবে
             const qrImg = document.getElementById('qr-code-img');
-            const finalLoginLink = "https://construction-ltd.github.io/client-login/";
-            
-            // Google Chart API ব্যবহার করা হয়েছে যা অত্যন্ত নির্ভরযোগ্য
-            qrImg.src = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(finalLoginLink)}&choe=UTF-8`;
+            qrImg.src = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(LOGIN_URL)}&choe=UTF-8`;
 
-            // স্ক্রল করে রিসিট দেখানো
             setTimeout(() => {
                 window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
-            }, 500);
+            }, 300);
         } else {
-            alert("Record not found!");
+            alert("No payment record found for the selected Name or Date!");
         }
     }
-    // Amount to Words Function (আগের মতই)
+
     function toWords(s) {
         const th = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
         const dg = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
