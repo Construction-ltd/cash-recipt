@@ -168,16 +168,21 @@
             document.getElementById('r-amt').innerText = parseFloat(row[4]).toLocaleString();
             document.getElementById('r-words').innerText = toWords(row[4]) + " Taka Only";
             
-            // QR Code জেনারেশন
+            // কিউআর কোড এপিআই আপডেট করা হয়েছে (এটি সব প্ল্যাটফর্মে কাজ করবে)
             const qrImg = document.getElementById('qr-code-img');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(LOGIN_URL)}`;
+            const finalLoginLink = "https://construction-ltd.github.io/client-login/";
+            
+            // Google Chart API ব্যবহার করা হয়েছে যা অত্যন্ত নির্ভরযোগ্য
+            qrImg.src = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(finalLoginLink)}&choe=UTF-8`;
 
-            window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+            // স্ক্রল করে রিসিট দেখানো
+            setTimeout(() => {
+                window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+            }, 500);
         } else {
             alert("Record not found!");
         }
     }
-
     // Amount to Words Function (আগের মতই)
     function toWords(s) {
         const th = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
