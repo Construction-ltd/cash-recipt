@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS Premium Receipt</title>
+    <style>
+        :root { --primary: #e67e22; --dark: #2c3e50; --light: #f8f9fa; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #dfe6e9; padding: 30px; }
+        
+        /* Control Panel */
+        .control-panel { max-width: 850px; margin: 0 auto 20px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
+        .grid-input { display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; align-items: end; }
+        label { font-size: 12px; font-weight: bold; color: var(--dark); text-transform: uppercase; margin-bottom: 5px; display: block; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; outline: none; transition: 0.3s; }
+        select:focus, input:focus { border-color: var(--primary); }
+        .btn-generate { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-generate:hover { background: #d35400; transform: translateY(-2px); }
+
+        /* Receipt Design */
+        #receipt-wrap { display: none; max-width: 850px; margin: 0 auto; background: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .receipt-body { padding: 50px; border: 15px solid var(--light); position: relative; background: #fff; }
+        
+        /* Watermark */
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); opacity: 0.04; width: 400px; pointer-events: none; }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
+        .brand h1 { margin: 0; color: var(--dark); font-size: 26px; letter-spacing: 1px; }
+        .brand h1 span { color: var(--primary); }
+        .contact-info { text-align: right; font-size: 12px; color: #666; line-height: 1.6; }
+
+        .receipt-banner { text-align: center; margin-bottom: 40px; }
+        .receipt-banner h2 { display: inline-block; background: var(--dark); color: white; padding: 8px 40px; border-radius: 5px; font-size: 20px; letter-spacing: 3px; }
+
+        /* Info Rows */
+        .info-row { display: flex; margin-bottom: 25px; align-items: baseline; gap: 10px; }
+        .info-label { font-weight: bold; color: var(--dark); white-space: nowrap; font-size: 15px; }
+        .info-value { border-bottom: 1px dashed #ccc; flex-grow: 1; padding: 0 10px; color: #333; font-size: 16px; }
+
+        /* Amount Section */
+        .amount-row { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; background: var(--light); padding: 20px; border-radius: 10px; }
+        .amt-box { font-size: 28px; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
+        .amt-words { font-style: italic; color: #7f8c8d; font-size: 14px; }
+
+        /* Footer */
+        .signature-area { margin-top: 100px; display: flex; justify-content: space-between; }
+        .sig-box { width: 200px; text-align: center; border-top: 2px solid var(--dark); padding-top: 10px; font-weight: bold; color: var(--dark); font-size: 14px; }
+
+        .print-fab { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 0 0 15px 15px; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .control-panel, .print-fab { display: none !important; }
+            .container { box-shadow: none; margin: 0; }
+            #receipt-wrap { display: block !important; box-shadow: none; border: none; }
+            .receipt-body { border: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="control-panel">
+    <div class="grid-input">
+        <div>
+            <label>Select Client / Payer</label>
+            <select id="payerSelect"><option>Loading Data...</option></select>
+        </div>
+        <div>
+            <label>Search by Date</label>
+            <input type="date" id="dateSearch">
+        </div>
+        <button class="btn-generate" onclick="drawReceipt()">GENERATE RECEIPT</button>
+    </div>
+</div>
+
+<div id="receipt-wrap">
+    <div class="receipt-body">
+        <img class="watermark" src="https://scontent.fjsr18-2.fna.fbcdn.net/v/t39.30808-6/608517230_908069688449770_4195374660845873501_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeGfSPRJnYPx0OPgbaOP2xi5F73hkL7gPWkXveGQvuA9aQ-hCn2WzwodMKtN3KbCt2JIyYH3DXzx5DOF7O9ZJk4h&_nc_ohc=iHP85gaCQ1oQ7kNvwHE87kh&_nc_oc=Adki_psg5DaacBFIx7QNXIcwFn8hX1tk_ElonRNnTdH5QVaZVpz1LTiJJC-B_m-wvzA&_nc_zt=23&_nc_ht=scontent.fjsr18-2.fna&_nc_gid=NxkukvWRQ42CSDU8s0mPTQ&oh=00_Afoukg-uwaPjCoUIHKbq2b4x6KqfWSrne5DrN2QiPxK-gA&oe=695C9EC6" alt="">
+        
+        <div class="header">
+            <div class="brand">
+                <h1>SOHANUR <span>CONSTRUCTION</span></h1>
+                <p style="font-size: 12px; font-weight: bold; color: var(--primary);">& MANPOWER SOLUTION</p>
+            </div>
+            <div class="contact-info">
+                📍 Naogaon Sadar, Naogaon<br>
+                📞 +8801805-090910, 090950<br>
+                📧 sohanurconstructionltd@gmail.com
+            </div>
+        </div>
+
+        <div class="receipt-banner">
+            <h2>MONEY RECEIPT</h2>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+            <div style="font-weight: bold;">No: <span id="r-no" style="color: var(--primary);"></span></div>
+            <div style="font-weight: bold;">Date: <span id="r-date"></span></div>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Received with thanks from :</span>
+            <span class="info-value" id="r-name" style="font-weight: bold; font-size: 18px;"></span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">The Sum of (In Words) :</span>
+            <span class="info-value" id="r-words"></span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Payment Purpose / Mode :</span>
+            <span class="info-value" id="r-mode"></span>
+        </div>
+
+        <div class="amount-row">
+            <div class="amt-box">Tk. <span id="r-amt"></span> /-</div>
+            <div class="amt-words">Verified Payment Receipt</div>
+        </div>
+
+        <div class="signature-area">
+            <div class="sig-box">Payer Signature</div>
+            <div class="sig-box" style="border-top-color: var(--primary);">Authorized Signature</div>
+        </div>
+    </div>
+    <button class="print-fab" onclick="window.print()">PRINT NOW (PDF)</button>
+</div>
+
+<script>
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=239856359&single=true&output=csv";
+    let dataStore = [];
+
+    async function loadSheet() {
+        try {
+            const res = await fetch(CSV_URL);
+            const csv = await res.text();
+            dataStore = csv.split('\n').map(r => r.split(','));
+            
+            const select = document.getElementById('payerSelect');
+            select.innerHTML = '<option value="">Select Client Name</option>';
+            
+            let names = [...new Set(dataStore.slice(1).map(r => r[3]?.trim()).filter(n => n))];
+            names.forEach(n => select.add(new Option(n, n)));
+        } catch (e) { alert("Failed to load spreadsheet!"); }
+    }
+
+    function drawReceipt() {
+        const name = document.getElementById('payerSelect').value;
+        const date = document.getElementById('dateSearch').value;
+        const row = dataStore.find((r, i) => i > 0 && (r[3]?.trim() === name || r[2]?.trim() === date));
+
+        if(row) {
+            document.getElementById('receipt-wrap').style.display = 'block';
+            document.getElementById('r-no').innerText = row[1] || "SCMS-786";
+            document.getElementById('r-date').innerText = row[2];
+            document.getElementById('r-name').innerText = row[3];
+            document.getElementById('r-mode').innerText = "Transaction ID: " + row[1];
+            document.getElementById('r-amt').innerText = parseFloat(row[4]).toLocaleString();
+            document.getElementById('r-words').innerText = toWords(row[4]) + " Taka Only";
+            window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+        } else {
+            alert("No payment records found!");
+        }
+    }
+
+    function toWords(s) {
+        const th = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
+        const dg = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const tn = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tw = ['Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        s = s.toString().replace(/[\, ]/g, '');
+        if (s != parseFloat(s)) return 'Not a number';
+        let x = s.indexOf('.');
+        if (x == -1) x = s.length;
+        if (x > 15) return 'Too big';
+        let n = s.split('');
+        let str = '';
+        let sk = 0;
+        for (let i = 0; i < x; i++) {
+            if ((x - i) % 3 == 2) {
+                if (n[i] == '1') {
+                    str += tn[Number(n[i + 1])] + ' ';
+                    i++;
+                    sk = 1;
+                } else if (n[i] != 0) {
+                    str += tw[n[i]] + ' ';
+                    sk = 1;
+                }
+            } else if (n[i] != 0) {
+                str += dg[n[i]] + ' ';
+                if ((x - i) % 3 == 0) str += 'Hundred ';
+                sk = 1;
+            }
+            if ((x - i) % 3 == 1) {
+                if (sk) str += th[(x - i - 1) / 3] + ' ';
+                sk = 0;
+            }
+        }
+        return str.replace(/\s+/g, ' ');
+    }
+
+    window.onload = loadSheet;
+</script>
+
+</body>
+</html>
