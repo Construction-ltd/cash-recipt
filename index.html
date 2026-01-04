@@ -6,52 +6,50 @@
     <title>SCMS Premium Receipt</title>
     <style>
         :root { --primary: #e67e22; --dark: #2c3e50; --light: #f8f9fa; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #dfe6e9; padding: 30px; margin: 0; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #dfe6e9; padding: 20px; margin: 0; }
         
         /* Control Panel */
         .control-panel { max-width: 850px; margin: 0 auto 20px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
         .grid-input { display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; align-items: end; }
+        @media (max-width: 650px) { .grid-input { grid-template-columns: 1fr; } }
         label { font-size: 12px; font-weight: bold; color: var(--dark); text-transform: uppercase; margin-bottom: 5px; display: block; }
-        select, input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; outline: none; }
-        .btn-generate { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        select, input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; outline: none; box-sizing: border-box; }
+        .btn-generate { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; height: 45px; }
+        .btn-generate:hover { background: #d35400; }
 
         /* Receipt Design */
-        #receipt-wrap { display: none; max-width: 850px; margin: 0 auto; background: white; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .receipt-body { padding: 50px; border: 15px solid var(--light); position: relative; background: #fff; min-height: 500px; }
+        #receipt-wrap { display: none; max-width: 850px; margin: 0 auto; background: white; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .receipt-body { padding: 40px; border: 15px solid var(--light); position: relative; background: #fff; min-height: 500px; }
         
-        /* Watermark */
-        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); opacity: 0.06; width: 400px; pointer-events: none; z-index: 0; }
-
-        /* Header */
-        .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; position: relative; z-index: 1; }
+        .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
         .brand h1 { margin: 0; color: var(--dark); font-size: 26px; letter-spacing: 1px; }
         .brand h1 span { color: var(--primary); }
         .contact-info { text-align: right; font-size: 12px; color: #666; line-height: 1.6; }
 
-        .receipt-banner { text-align: center; margin-bottom: 40px; position: relative; z-index: 1; }
-        .receipt-banner h2 { display: inline-block; background: var(--dark); color: white; padding: 8px 40px; border-radius: 5px; font-size: 20px; letter-spacing: 3px; }
+        .receipt-banner { text-align: center; margin-bottom: 40px; }
+        .receipt-banner h2 { display: inline-block; background: var(--dark); color: white; padding: 8px 40px; border-radius: 5px; font-size: 18px; letter-spacing: 3px; margin: 0; }
 
-        .info-row { display: flex; margin-bottom: 25px; align-items: baseline; gap: 10px; position: relative; z-index: 1; }
-        .info-label { font-weight: bold; color: var(--dark); white-space: nowrap; font-size: 15px; }
+        .info-row { display: flex; margin-bottom: 25px; align-items: baseline; gap: 10px; }
+        .info-label { font-weight: bold; color: var(--dark); white-space: nowrap; font-size: 14px; }
         .info-value { border-bottom: 1px dashed #ccc; flex-grow: 1; padding: 0 10px; color: #333; font-size: 16px; min-height: 20px; }
 
-        .amount-row { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; background: var(--light); padding: 20px; border-radius: 10px; position: relative; z-index: 1; }
-        .amt-box { font-size: 28px; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
+        .amount-row { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; background: var(--light); padding: 20px; border-radius: 10px; }
+        .amt-box { font-size: 26px; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
 
-        .signature-area { margin-top: 80px; display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 1; }
-        .sig-box { width: 200px; text-align: center; border-top: 2px solid var(--dark); padding-top: 10px; font-weight: bold; color: var(--dark); font-size: 14px; }
+        .signature-area { margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .sig-box { width: 180px; text-align: center; border-top: 2px solid var(--dark); padding-top: 10px; font-weight: bold; color: var(--dark); font-size: 13px; }
         
-        .qr-box { text-align: center; background: white; padding: 5px; border: 1px solid #ddd; border-radius: 5px; }
-        .qr-box img { width: 85px; height: 85px; display: block; }
-        .qr-box p { font-size: 9px; margin: 3px 0 0; color: #666; font-weight: bold; }
+        .qr-box { text-align: center; padding: 5px; border: 1px solid #eee; border-radius: 5px; background: #fff; }
+        .qr-box img { width: 90px; height: 90px; display: block; margin: 0 auto; }
+        .qr-box p { font-size: 9px; margin: 5px 0 0; color: #777; font-weight: bold; text-transform: uppercase; }
 
-        .print-fab { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .print-fab { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; }
 
         @media print {
             body { background: white; padding: 0; }
             .control-panel, .print-fab { display: none !important; }
-            #receipt-wrap { display: block !important; box-shadow: none; border: none; width: 100%; }
-            .receipt-body { border: none; padding: 30px; }
+            #receipt-wrap { display: block !important; box-shadow: none; width: 100%; margin: 0; }
+            .receipt-body { border: none; padding: 10px; }
         }
     </style>
 </head>
@@ -64,7 +62,7 @@
             <select id="payerSelect"><option value="">Loading Data...</option></select>
         </div>
         <div>
-            <label>Search by Date</label>
+            <label>Transaction Date</label>
             <input type="date" id="dateSearch">
         </div>
         <button class="btn-generate" onclick="drawReceipt()">GENERATE RECEIPT</button>
@@ -73,12 +71,10 @@
 
 <div id="receipt-wrap">
     <div class="receipt-body">
-        <img class="watermark" src="https://scontent.fjsr18-2.fna.fbcdn.net/v/t39.30808-6/608517230_908069688449770_4195374660845873501_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&oh=00_Afoukg-uwaPjCoUIHKbq2b4x6KqfWSrne5DrN2QiPxK-gA&oe=695C9EC6" alt="Logo">
-        
         <div class="header">
             <div class="brand">
                 <h1>SOHANUR <span>CONSTRUCTION</span></h1>
-                <p style="font-size: 12px; font-weight: bold; color: var(--primary); margin: 0;">& MANPOWER SOLUTION</p>
+                <p style="font-size: 11px; font-weight: bold; color: var(--primary); margin: 0;">& MANPOWER SOLUTION</p>
             </div>
             <div class="contact-info">
                 📍 Naogaon Sadar, Naogaon<br>
@@ -89,19 +85,19 @@
 
         <div class="receipt-banner"><h2>MONEY RECEIPT</h2></div>
 
-        <div style="display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; z-index: 1;">
-            <div style="font-weight: bold;">No: <span id="r-no" style="color: var(--primary);"></span></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+            <div style="font-weight: bold;">Receipt No: <span id="r-no" style="color: var(--primary);"></span></div>
             <div style="font-weight: bold;">Date: <span id="r-date"></span></div>
         </div>
 
         <div class="info-row">
             <span class="info-label">Received with thanks from :</span>
-            <span class="info-value" id="r-name" style="font-weight: bold; font-size: 18px;"></span>
+            <span class="info-value" id="r-name" style="font-weight: bold; font-size: 17px; text-transform: uppercase;"></span>
         </div>
 
         <div class="info-row">
             <span class="info-label">The Sum of (In Words) :</span>
-            <span class="info-value" id="r-words"></span>
+            <span class="info-value" id="r-words" style="font-style: italic;"></span>
         </div>
 
         <div class="info-row">
@@ -111,26 +107,25 @@
 
         <div class="amount-row">
             <div class="amt-box">Tk. <span id="r-amt"></span> /-</div>
-            <div class="amt-words" style="font-style: italic; color: #7f8c8d;">Verified Payment Receipt</div>
+            <div style="font-style: italic; color: #7f8c8d; font-size: 13px;">Verified Digital Record</div>
         </div>
 
         <div class="signature-area">
             <div class="sig-box">Payer Signature</div>
             
             <div class="qr-box">
-                <img id="qr-code-img" src="" alt="QR">
-                <p>Scan for History</p>
+                <img id="qr-code-img" src="" alt="QR Code">
+                <p>Scan to Verify</p>
             </div>
 
             <div class="sig-box" style="border-top-color: var(--primary);">Authorized Signature</div>
         </div>
     </div>
-    <button class="print-fab" onclick="window.print()">PRINT NOW (PDF)</button>
+    <button class="print-fab" onclick="window.print()">DOWNLOAD AS PDF / PRINT</button>
 </div>
 
 <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=239856359&single=true&output=csv";
-    const LOGIN_URL = "https://construction-ltd.github.io/client-login/";
     let dataStore = [];
 
     async function loadSheet() {
@@ -140,62 +135,74 @@
             dataStore = csv.split('\n').map(r => r.split(','));
             const select = document.getElementById('payerSelect');
             select.innerHTML = '<option value="">Select Client Name</option>';
-            let names = [...new Set(dataStore.slice(1).map(r => r[3]?.trim()).filter(n => n))];
-            names.forEach(n => select.add(new Option(n, n)));
+            
+            let names = [...new Set(dataStore.slice(1).map(r => r[3]?.replace(/"/g, '').trim()).filter(n => n))];
+            names.sort().forEach(n => select.add(new Option(n, n)));
         } catch (e) { console.log("Data Load Error"); }
     }
 
     function drawReceipt() {
         const name = document.getElementById('payerSelect').value;
-        const dateInput = document.getElementById('dateSearch').value;
+        const dateInput = document.getElementById('dateSearch').value; 
         
-        // Find row by Name or Date
-        const row = dataStore.find((r, i) => i > 0 && (r[3]?.trim() === name || (dateInput && r[2]?.trim().includes(dateInput))));
+        if(!name && !dateInput) return alert("Please select a Name or Date");
+
+        let formattedDate = "";
+        if(dateInput) {
+            const d = new Date(dateInput);
+            formattedDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        // Search from latest to oldest
+        const row = dataStore.slice(1).reverse().find(r => {
+            const rowName = r[3]?.replace(/"/g, '').trim();
+            const rowDate = r[2]?.replace(/"/g, '').trim();
+            
+            if(name && dateInput) return rowName === name && rowDate === formattedDate;
+            if(name) return rowName === name;
+            if(dateInput) return rowDate === formattedDate;
+        });
 
         if(row) {
             document.getElementById('receipt-wrap').style.display = 'block';
-            document.getElementById('r-no').innerText = row[1] || "N/A";
-            document.getElementById('r-date').innerText = row[2] || "";
-            document.getElementById('r-name').innerText = row[3] || "";
-            document.getElementById('r-mode').innerText = "Transaction ID: " + (row[1] || "N/A");
+            const receiptID = row[1]?.replace(/"/g, '') || "N/A";
+            const payerName = row[3]?.replace(/"/g, '') || "";
+            const amountStr = row[4]?.replace(/[^0-9.]/g, '') || "0";
+            const amountNum = parseFloat(amountStr);
+
+            document.getElementById('r-no').innerText = receiptID;
+            document.getElementById('r-date').innerText = row[2]?.replace(/"/g, '') || "";
+            document.getElementById('r-name').innerText = payerName;
+            document.getElementById('r-mode').innerText = "Transaction ID: " + receiptID;
+            document.getElementById('r-amt').innerText = amountNum.toLocaleString('en-IN');
+            document.getElementById('r-words').innerText = toWords(amountNum) + " Taka Only";
             
-            let amount = row[4] ? row[4].replace(/[^0-9.]/g, '') : "0";
-            document.getElementById('r-amt').innerText = parseFloat(amount).toLocaleString();
-            document.getElementById('r-words').innerText = toWords(amount) + " Taka Only";
-            
-            // Google QR API - সব ডিভাইসে কাজ করবে
+            // Fixed QR Code API (goqr.me)
             const qrImg = document.getElementById('qr-code-img');
-            qrImg.src = `https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=${encodeURIComponent(LOGIN_URL)}&choe=UTF-8`;
+            const qrContent = `Receipt No: ${receiptID}\nPayer: ${payerName}\nAmount: ${amountNum} TK`;
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrContent)}`;
 
             setTimeout(() => {
-                window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
-            }, 300);
+                window.scrollTo({top: document.querySelector('.control-panel').offsetHeight, behavior: 'smooth'});
+            }, 200);
         } else {
-            alert("No payment record found for the selected Name or Date!");
+            alert("No payment record found!");
         }
     }
 
-    function toWords(s) {
-        const th = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
-        const dg = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-        const tn = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-        const tw = ['Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-        s = s.toString().replace(/[\, ]/g, '');
-        if (s != parseFloat(s)) return '';
-        let x = s.indexOf('.'); if (x == -1) x = s.length;
-        let n = s.split(''); let str = ''; let sk = 0;
-        for (let i = 0; i < x; i++) {
-            if ((x - i) % 3 == 2) {
-                if (n[i] == '1') { str += tn[Number(n[i + 1])] + ' '; i++; sk = 1; }
-                else if (n[i] != 0) { str += tw[n[i]] + ' '; sk = 1; }
-            } else if (n[i] != 0) {
-                str += dg[n[i]] + ' ';
-                if ((x - i) % 3 == 0) str += 'Hundred ';
-                sk = 1;
-            }
-            if ((x - i) % 3 == 1) { if (sk) str += th[(x - i - 1) / 3] + ' '; sk = 0; }
+    function toWords(num) {
+        const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        function helper(n) {
+            if (n < 20) return a[n];
+            if (n < 100) return b[Math.floor(n / 10)] + ' ' + a[n % 10];
+            if (n < 1000) return helper(Math.floor(n / 100)) + 'Hundred ' + helper(n % 100);
+            if (n < 100000) return helper(Math.floor(n / 1000)) + 'Thousand ' + helper(n % 1000);
+            if (n < 10000000) return helper(Math.floor(n / 100000)) + 'Lakh ' + helper(n % 100000);
+            return helper(Math.floor(n / 10000000)) + 'Crore ' + helper(n % 10000000);
         }
-        return str;
+        return helper(Math.round(num));
     }
 
     window.onload = loadSheet;
