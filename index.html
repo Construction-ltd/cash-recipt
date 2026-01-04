@@ -8,16 +8,13 @@
         :root { --primary: #e67e22; --dark: #2c3e50; --light: #f8f9fa; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: #dfe6e9; padding: 20px; margin: 0; }
         
-        /* Control Panel */
         .control-panel { max-width: 850px; margin: 0 auto 20px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
         .grid-input { display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; align-items: end; }
         @media (max-width: 650px) { .grid-input { grid-template-columns: 1fr; } }
         label { font-size: 12px; font-weight: bold; color: var(--dark); text-transform: uppercase; margin-bottom: 5px; display: block; }
         select, input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 8px; outline: none; box-sizing: border-box; }
         .btn-generate { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; height: 45px; }
-        .btn-generate:hover { background: #d35400; }
 
-        /* Receipt Design */
         #receipt-wrap { display: none; max-width: 850px; margin: 0 auto; background: white; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         .receipt-body { padding: 40px; border: 15px solid var(--light); position: relative; background: #fff; min-height: 500px; }
         
@@ -33,15 +30,21 @@
         .info-label { font-weight: bold; color: var(--dark); white-space: nowrap; font-size: 14px; }
         .info-value { border-bottom: 1px dashed #ccc; flex-grow: 1; padding: 0 10px; color: #333; font-size: 16px; min-height: 20px; }
 
-        .amount-row { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; background: var(--light); padding: 20px; border-radius: 10px; }
+        /* Password and Special Advise Section */
+        .advise-box { background: #fff9e6; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #f1c40f; }
+        .advise-box p { margin: 0; font-size: 13px; color: #7f8c8d; line-height: 1.5; }
+        .advise-box b { color: var(--dark); }
+
+        .amount-row { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; background: var(--light); padding: 20px; border-radius: 10px; }
         .amt-box { font-size: 26px; font-weight: 800; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 15px; }
 
         .signature-area { margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end; }
         .sig-box { width: 180px; text-align: center; border-top: 2px solid var(--dark); padding-top: 10px; font-weight: bold; color: var(--dark); font-size: 13px; }
         
-        .qr-box { text-align: center; padding: 5px; border: 1px solid #eee; border-radius: 5px; background: #fff; }
-        .qr-box img { width: 90px; height: 90px; display: block; margin: 0 auto; }
-        .qr-box p { font-size: 9px; margin: 5px 0 0; color: #777; font-weight: bold; text-transform: uppercase; }
+        .qr-section { text-align: center; width: 180px; }
+        .qr-box { padding: 5px; border: 1px solid #eee; border-radius: 5px; background: #fff; display: inline-block; }
+        .qr-box img { width: 100px; height: 100px; display: block; margin: 0 auto; }
+        .qr-instruction { font-size: 10px; color: #e67e22; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
 
         .print-fab { width: 100%; padding: 15px; background: var(--dark); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 16px; }
 
@@ -105,6 +108,10 @@
             <span class="info-value" id="r-mode"></span>
         </div>
 
+        <div class="advise-box">
+            <p><b>Client Instruction:</b> Use the password <b><span id="r-pass-label" style="color:#d35400; font-size:16px;"></span></b> to log in to your dashboard. Scan the QR code below for instant access to your payment history and details.</p>
+        </div>
+
         <div class="amount-row">
             <div class="amt-box">Tk. <span id="r-amt"></span> /-</div>
             <div style="font-style: italic; color: #7f8c8d; font-size: 13px;">Verified Digital Record</div>
@@ -113,9 +120,11 @@
         <div class="signature-area">
             <div class="sig-box">Payer Signature</div>
             
-            <div class="qr-box">
-                <img id="qr-code-img" src="" alt="QR Code">
-                <p>Scan to Verify</p>
+            <div class="qr-section">
+                <div class="qr-box">
+                    <img id="qr-code-img" src="" alt="QR Code">
+                </div>
+                <div class="qr-instruction">Scan to Login</div>
             </div>
 
             <div class="sig-box" style="border-top-color: var(--primary);">Authorized Signature</div>
@@ -126,16 +135,19 @@
 
 <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=239856359&single=true&output=csv";
+    const USER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTAwqKg4QjdIUWQ31Nxl7wnkIRpx_H80Ddd7lsW4s0bgVowNL2xFSPhOYcB-RwwrO7b0x5lF61Yv03D/pub?gid=1258553023&single=true&output=csv";
+
     let dataStore = [];
+    let userStore = [];
 
     async function loadSheet() {
         try {
-            const res = await fetch(CSV_URL);
-            const csv = await res.text();
-            dataStore = csv.split('\n').map(r => r.split(','));
+            const [res, uRes] = await Promise.all([fetch(CSV_URL), fetch(USER_DATA_URL)]);
+            dataStore = (await res.text()).split('\n').map(r => r.split(','));
+            userStore = (await uRes.text()).split('\n').map(r => r.split(','));
+
             const select = document.getElementById('payerSelect');
             select.innerHTML = '<option value="">Select Client Name</option>';
-            
             let names = [...new Set(dataStore.slice(1).map(r => r[3]?.replace(/"/g, '').trim()).filter(n => n))];
             names.sort().forEach(n => select.add(new Option(n, n)));
         } catch (e) { console.log("Data Load Error"); }
@@ -144,7 +156,6 @@
     function drawReceipt() {
         const name = document.getElementById('payerSelect').value;
         const dateInput = document.getElementById('dateSearch').value; 
-        
         if(!name && !dateInput) return alert("Please select a Name or Date");
 
         let formattedDate = "";
@@ -153,22 +164,20 @@
             formattedDate = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
         }
 
-        // Search from latest to oldest
         const row = dataStore.slice(1).reverse().find(r => {
             const rowName = r[3]?.replace(/"/g, '').trim();
             const rowDate = r[2]?.replace(/"/g, '').trim();
-            
-            if(name && dateInput) return rowName === name && rowDate === formattedDate;
-            if(name) return rowName === name;
-            if(dateInput) return rowDate === formattedDate;
+            return (name && dateInput) ? (rowName === name && rowDate === formattedDate) : (name ? rowName === name : rowDate === formattedDate);
         });
 
         if(row) {
             document.getElementById('receipt-wrap').style.display = 'block';
             const receiptID = row[1]?.replace(/"/g, '') || "N/A";
-            const payerName = row[3]?.replace(/"/g, '') || "";
-            const amountStr = row[4]?.replace(/[^0-9.]/g, '') || "0";
-            const amountNum = parseFloat(amountStr);
+            const payerName = row[3]?.replace(/"/g, '').trim();
+            const amountNum = parseFloat(row[4]?.replace(/[^0-9.]/g, '') || "0");
+            
+            const userRow = userStore.find(u => u[0]?.replace(/"/g, '').trim() === payerName);
+            const userPass = userRow ? userRow[1]?.replace(/"/g, '').trim() : "N/A";
 
             document.getElementById('r-no').innerText = receiptID;
             document.getElementById('r-date').innerText = row[2]?.replace(/"/g, '') || "";
@@ -176,24 +185,21 @@
             document.getElementById('r-mode').innerText = "Transaction ID: " + receiptID;
             document.getElementById('r-amt').innerText = amountNum.toLocaleString('en-IN');
             document.getElementById('r-words').innerText = toWords(amountNum) + " Taka Only";
+            document.getElementById('r-pass-label').innerText = userPass;
             
-            // Fixed QR Code API (goqr.me)
-            const qrImg = document.getElementById('qr-code-img');
-            const qrContent = `Receipt No: ${receiptID}\nPayer: ${payerName}\nAmount: ${amountNum} TK`;
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrContent)}`;
+            // QR Code Logic: সরাসরি লিঙ্কে নিয়ে যাবে
+            const qrLink = `https://construction-ltd.github.io/client-login/`;
+            document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrLink)}`;
 
-            setTimeout(() => {
-                window.scrollTo({top: document.querySelector('.control-panel').offsetHeight, behavior: 'smooth'});
-            }, 200);
+            setTimeout(() => { window.scrollTo({top: 400, behavior: 'smooth'}); }, 200);
         } else {
-            alert("No payment record found!");
+            alert("No record found!");
         }
     }
 
     function toWords(num) {
         const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
         const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-        
         function helper(n) {
             if (n < 20) return a[n];
             if (n < 100) return b[Math.floor(n / 10)] + ' ' + a[n % 10];
@@ -204,9 +210,7 @@
         }
         return helper(Math.round(num));
     }
-
     window.onload = loadSheet;
 </script>
-
 </body>
 </html>
